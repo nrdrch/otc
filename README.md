@@ -20,7 +20,7 @@ more </summary>
 git clone https://github.com/nrdrch/otc.git
 ```
 ```
-cd winfu
+cd otc
 ```
 ```
 cargo build --release
