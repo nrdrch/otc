@@ -30,11 +30,11 @@ cargo build --release
 </details>
 
 ------------------
-| **Option**       | **Description**    | **Example**   |
-| :--- | :---          | :---     |
+| **Option**       | **Description**    | **Example**       |
+| :---      | :---          | :---            |
 | --list-themes, -ls | List Themes   | otc -ls |     
 | --update-omp, -u    | Update OMP including themes | otc -u    |
 | --choose-theme, -ch | Choose theme by name | otc -ch bubblesextra   |
-| --add--newtheme, -a | Add a theme to the list | otc -a <Name> <Path> |
+| --add--newtheme, -a | Add a theme to the list | otc -a "NewName" "/Path/to/theme.omp.json" |
 | -help, -h          | Display help   | otc -h |  
 ---------
