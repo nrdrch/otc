@@ -1,6 +1,6 @@
 [package]
 name = "otc"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Oh My Posh theme Chooser"
 repository = "https://github.com/nrdrch/otc"
