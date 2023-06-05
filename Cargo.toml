@@ -5,6 +5,7 @@ edition = "2021"
 description = "Oh My Posh theme Chooser"
 repository = "https://github.com/nrdrch/otc"
 categories = ["command-line-utilities"]
+license = "MIT"
 [dependencies]
 colored = "2.0.0"
 dirs = "5.0.1"
