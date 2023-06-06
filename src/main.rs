@@ -77,7 +77,7 @@ fn usage() {
     println!("{}{} {}",spacer,"List the themes quickly in plain text |".white(), "for previews run Get-PoshThemes".white().dimmed());
     println!("{} {} {} {} {}","  <".yellow().dimmed().bold(),  PACKAGENAME.white(),"--update-omp".cyan().bold(),"or".white(),"-u".cyan().bold());
     println!("{}{}",spacer,"Update the themes and Oh My Posh".white());
-    println!("{} {} {} {} {} ","  <".yellow().dimmed().bold(),  PACKAGENAME.white(),"--choose-theme".cyan().bold(),"or".white(),"-ch".cyan().bold());
+    println!("{} {} {} {} {} {}","  <".yellow().dimmed().bold(),  PACKAGENAME.white(),"--choose-theme".cyan().bold(),"or".white(),"-ch".cyan().bold(), "<Name>".white());
     println!("{}{}",spacer,"Choose a theme by name".white());
     println!("{} {} {} {} {} {} {}","  <".yellow().dimmed().bold(),  PACKAGENAME.white(),"--add--newtheme".cyan().bold(),"or".white(),"-a".cyan().bold(), "<Name>".white(),"<Path>".white().dimmed(),);
     println!("{}{} {}",spacer,"Add a custom theme from path |".white(),"if Path not specified, copy from current theme".white().dimmed());
