@@ -1,5 +1,5 @@
-# OTC - Oh My Posh Theme Chooser For Windows! 
-
+# OTC - Oh My Posh Theme Chooser! 
+(currently only Windows!)
 ### Installation 
 ```
 cargo install otc
