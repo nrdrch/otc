@@ -1,5 +1,5 @@
 # OTC - Oh My Posh Theme Chooser! 
-(currently only Windows!)
+***(currently only Windows!)***
 ### Installation 
 ```
 cargo install otc
@@ -35,6 +35,6 @@ cargo build --release
 | --list-themes, -ls | List Themes   | otc -ls |     
 | --update-omp, -u    | Update OMP including themes | otc -u    |
 | --choose-theme, -ch | Choose theme by name | otc -ch bubblesextra   |
-| --add--newtheme, -a | Add a theme to the list | otc -a "NewName" "/Path/to/theme.omp.json" (Whithout Path it creates new from current) |
+| --add--newtheme, -a | Add a theme to the list | otc -a "NewName" "/Path/to/theme.omp.json",  (Whithout Path it creates new from current) |
 | -help, -h          | Display help   | otc -h |  
 ---------
