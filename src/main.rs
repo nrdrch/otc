@@ -11,21 +11,17 @@ use colored::*;
 fn checkfs() {
     let user_profile = env::var("USERPROFILE").unwrap();
     let ompthemes = PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes", user_profile));
-
     if !ompthemes.exists() {
         std::fs::create_dir_all(&ompthemes).expect("Failed to create Custom OMPTheme Dir.");
     }
     let user_profile = env::var("USERPROFILE").unwrap();
     let _flag_path = PathBuf::from(format!("{}/Documents/WindowsPowerShell/omp_is_installed_flag.txt", user_profile));
 }
-
-
 fn check_oh_my_posh_installed() {
     let user_profile = env::var("USERPROFILE").unwrap();
     let flag_path = PathBuf::from(format!("{}/Documents/WindowsPowerShell/omp_is_installed_flag.txt", user_profile));
     let _destination_file = PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes/custom.omp.json", user_profile));
     let _ompthemes = PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes", user_profile));
-
     if flag_path.exists() {
         return;
     } else {
@@ -36,23 +32,16 @@ fn check_oh_my_posh_installed() {
                 eprintln!("Failed to execute PowerShell command.");
                 exit(1);
             });
-
         if output.status.success() {
-            // Create flag file to indicate installation is complete
             File::create(&flag_path).expect("Failed to create flag file.");
             println!("{}{}{}","[".white(),"SUCCESS".green(),"]".white(),);
         } else { 
-            // oh-my-posh is not installed, so install it
             let install_command = "winget install JanDeDobbeleer.OhMyPosh -s winget";
-            //let install_command2 =
-            //    "Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://ohmyposh.dev/install.ps1'))";
-
             Command::new("powershell.exe")
                 .arg("-Command")
                 .arg(install_command)
                 .spawn()
                 .expect("Failed to execute PowerShell install command.");
-
             File::create(&flag_path).expect("Failed to create flag file.");
             println!("oh-my-posh is installed.");
         }
@@ -69,7 +58,6 @@ enum CommandOption {
 }
 fn usage() {
     let spacer = "       ";
-
     println!(" {}","Usage Examples:".cyan().bold());
     print!("{}",">".white().bold());
     println!("{}","                                                                              ".white().strikethrough().dimmed().bold());
@@ -125,7 +113,6 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
             let themes = get_posh_themes()?;
             let modded_themes = get_modded_posh_themes()?;
             let _all_themes: Vec<_> = themes.iter().chain(modded_themes.iter()).collect();
-
             let filtered_modded_themes: Vec<_> = modded_themes
                 .iter()
                 .filter(|theme| {
@@ -134,13 +121,11 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                         .and_then(|stem| stem.to_str())
                         .map(|name| name.trim_end_matches(".omp"))
                         .unwrap_or("Invalid Theme Name");
-
                     theme_name != "custom" && !themes.contains(&theme)
                 })
                 .collect();
                 print!("{}",">".cyan().bold());
                 println!("{}","                             ".white().strikethrough().dimmed().bold());
-                
                 println!("{}"," Themes:".cyan().bold().bold());
             for (_index, theme) in themes.iter().enumerate() {
                 let theme_name = theme
@@ -148,7 +133,6 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                     .and_then(|stem| stem.to_str())
                     .map(|name| name.trim_end_matches(".omp"))
                     .unwrap_or("Invalid Theme Name");
-
                 if theme_name != "custom" && !filtered_modded_themes.iter().any(|modded_theme| {
                     modded_theme
                         .file_stem()
@@ -159,10 +143,8 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                     println!("      {}", theme_name);
                 }
             }
-
             print!("{}",">".cyan().bold());
             println!("{}","                             ".white().strikethrough().dimmed().bold());
-            
             println!("{}"," Modded dimmed:".cyan().bold().bold());
             for (_index, theme) in filtered_modded_themes.iter().enumerate() {
                 let modded_theme_name = theme
@@ -170,12 +152,9 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                     .and_then(|stem| stem.to_str())
                     .map(|name| name.trim_end_matches(".omp"))
                     .unwrap_or("Invalid Theme Name");
-
                 println!("      {}", modded_theme_name);
             }
-
             println!("{}","     ".white().dimmed());
-            
             println!("{}"," For a preview run: Get-PoshThemes.".dimmed().bold());
             Ok(())
         }
@@ -184,20 +163,13 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
             if temp_dir.exists() {
                 std::fs::remove_dir_all(&temp_dir)?;
             }
-            
-            // Start the spinner
             let mut spinner = Spinner::new(Spinners::Line, "Updating Oh-My-Posh...".into());
-            
-            
             Command::new("powershell.exe")
                 .args(&["winget", "upgrade", "JanDeDobbeleer.OhMyPosh", "-s", "winget"])
                 .stdout(std::process::Stdio::null()) // Redirect stdout to null
                 .stderr(std::process::Stdio::null()) // Redirect stderr to null
                 .spawn()
                 .expect("Failed to execute Update command.");
-        
-            
-        
             Command::new("git")
                 .args(&[
                     "clone",
@@ -208,11 +180,8 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                 .stderr(std::process::Stdio::null()) // Redirect stderr to null
                 .spawn()
                 .expect("Failed to execute git clone command.");
-        
-            // Stop the spinner
             sleep(Duration::from_secs(3));
             spinner.stop();
-            
             println!("{}{}{}","[".white(),"SUCCESS".green(),"]".white(),);
             Ok(())
         }
@@ -223,23 +192,35 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
         "--choose-theme" | "-ch" => {
             let themes = get_posh_themes()?;
             let modded_themes = get_modded_posh_themes()?;
-        
             let all_themes: Vec<_> = themes.iter().chain(modded_themes.iter()).collect();
-        
             let selected_theme_path = all_themes.iter().find(|theme| {
-                theme
-                    .file_stem()
+                let theme_extension = theme
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .unwrap_or("");
+                let theme_name_trimmed = theme_name
+                    .as_ref()
+                    .map(|name| name.trim_end_matches(".omp.json"))
+                    .unwrap_or("Invalid Theme Name");
+                theme.file_stem()
                     .and_then(|stem| stem.to_str())
-                    .map(|name| name.trim_end_matches(".omp"))
-                    .unwrap_or("Invalid Theme Name") == theme_name.map(|name| name.trim_end_matches(".omp.json")).unwrap_or("Invalid Theme Name")
+                    .map(|name| {
+                        if name.ends_with(".omp") {
+                            name.trim_end_matches(".omp")
+                        } else if name.ends_with(".yaml") {
+                            name
+                        } else {
+                            "Invalid Theme Name"
+                        }
+                    })
+                    .unwrap_or("Invalid Theme Name") == theme_name_trimmed && theme_extension != ""
             });
-        
             if let Some(path) = selected_theme_path {
                 let user_profile = env::var("USERPROFILE").unwrap();
-                let destination = PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes/custom.omp.json", user_profile));
+                let destination = PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes/custom{}", user_profile, if path.extension().unwrap_or_default() == "yaml" { ".yaml" } else { ".omp.json" }));
                 std::fs::copy(path, &destination)?;
                 print!("    Changing Theme ");
-                println!("{}{}{}","[".white(),"SUCCESS".green(),"]".white(),);
+                println!("{}{}{}", "[".white(), "SUCCESS".green(), "]".white());
             } else {
                 let modded_theme_names: Vec<_> = modded_themes
                     .iter()
@@ -251,20 +232,17 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                             .unwrap_or("Invalid Theme Name")
                     })
                     .collect();
-        
                 if modded_theme_names.contains(&"custom") {
-                    println!("{} {}{}{}","Failed to find the selected theme.".white(), "[".white(),"ERROR".red(),"]".white());
+                    println!("{} {}{}{}", "Failed to find the selected theme.".white(), "[".white(), "ERROR".red(), "]".white());
                 } else {
-                    println!("{} {}{}{}","Invalid theme name.".white(), "[".white(),"ERROR".red(),"]".white());
+                    println!("{} {}{}{}", "Invalid theme name.".white(), "[".white(), "ERROR".red(), "]".white());
                 }
             }
-        
             Ok(())
         }
         "--add-newtheme" | "-a" => {
             let user_profile = env::var("USERPROFILE").unwrap();
             let default_destination = PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes/custom.omp.json", user_profile));
-            
             if let Some(source) = source_file {
                 let source = PathBuf::from(source);
                 if !source.exists() {
@@ -274,15 +252,12 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                         "Source file does not exist",
                     )));
                 }
-        
                 let destination_file = if let Some(name) = theme_name {
                     PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes/{}.omp.json", user_profile, name))
                 } else {
                     default_destination.clone()
                 };
-        
                 fs_extra::file::copy(&source, &destination_file, &fs_extra::file::CopyOptions::new())?;
-        
                 print!("    Adding Theme ");
                 println!("{}{}{}","[".white(),"SUCCESS".green(),"]".white(),);
                 Ok(())
@@ -293,27 +268,21 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                 } else {
                     default_destination.clone()
                 };
-            
                 fs_extra::file::copy(&default_destination, &destination_file, &fs_extra::file::CopyOptions::new())?;
-            
                 print!("    Theme added ");
                 println!("{}{}{}","[".white(),"SUCCESS".green(),"]".white(),);
                 Ok(())
             }
         }
-        
-              
         _ => {
             usage();
             Ok(())
         }
     }
 }
-
 fn main() {
     checkfs();
     check_oh_my_posh_installed();
-
     let args: Vec<String> = env::args().skip(1).collect();
     if let Some(command) = args.get(0) {
         let theme_name = args.get(1).map(|name| name.as_str());
