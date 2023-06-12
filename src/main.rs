@@ -1,13 +1,56 @@
 use std::env;
-use std::io;
 use std::path::PathBuf;
+use std::io;
 use std::process::{Command, exit};
 use strum_macros::{Display, EnumIter};
 use spinners::{Spinner, Spinners};
-use std::fs::File;
 use std::thread::sleep;
 use std::time::Duration;
 use colored::*;
+use std::fs::{self, File, OpenOptions};
+use std::io::{Error, Read, Write};
+
+
+
+fn create_paths_if_not_exists(paths: &[&str]) -> Result<(), Error> {
+    for path in paths {
+        if let Some(parent) = std::path::Path::new(path).parent() {
+            fs::create_dir_all(parent)?;
+        }
+        if !std::path::Path::new(path).exists() {
+            let mut file = File::create(path)?;
+            file.write_all(b"")?; // Write an empty byte sequence to create the file
+        }
+    }
+    Ok(())
+}
+
+fn check_profile_file(profile_file_path: &str, lines: &[&str]) -> Result<(), Error> {
+    let mut file = File::open(profile_file_path)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+
+    let mut file_modified = false;
+    let mut updated_contents = String::new();
+
+    for line in lines {
+        if !contents.contains(line) {
+            file_modified = true;
+            updated_contents.push_str(line);
+            updated_contents.push('\n');
+        }
+    }
+
+    updated_contents.push_str(&contents);
+
+    if file_modified {
+        let mut file = OpenOptions::new().write(true).truncate(true).open(profile_file_path)?;
+        file.write_all(updated_contents.as_bytes())?;
+        println!("Profile file modified: Added missing line(s)");
+    }
+
+    Ok(())
+}
 fn checkfs() {
     let user_profile = env::var("USERPROFILE").unwrap();
     let ompthemes = PathBuf::from(format!("{}/Documents/WindowsPowerShell/ompthemes", user_profile));
@@ -247,7 +290,7 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
                 let source = PathBuf::from(source);
                 if !source.exists() {
                     println!("{} {}{}{}","Source file does not exist.".white(), "[".white(),"ERROR".red(),"]".white());
-                    return Err(Box::new(io::Error::new(
+                    return Err(Box::new(Error::new(
                         io::ErrorKind::NotFound,
                         "Source file does not exist",
                     )));
@@ -281,8 +324,30 @@ fn run_command(command: &str, theme_name: Option<&str>, source_file: Option<&str
     }
 }
 fn main() {
+    let home_dir = env::var("USERPROFILE").expect("Failed to get home directory path");
+    let mods_file_path = format!("{}\\Documents\\WindowsPowerShell\\mods.psm1", home_dir);
+    let profile_file_path = format!("{}\\Documents\\WindowsPowerShell\\Microsoft.PowerShell_profile.ps1", home_dir);
+
+    let paths = vec![mods_file_path.as_str(), profile_file_path.as_str()];
+
+    create_paths_if_not_exists(&paths)
+        .unwrap_or_else(|err| eprintln!("Failed to create paths: {}", err));
+
+    let lines_to_check = [
+        r#"oh-my-posh init pwsh --config "$HOME\Documents\WindowsPowerShell\ompthemes\custom.omp.yaml" | Invoke-Expression"#,
+        r#"oh-my-posh init pwsh --config "$HOME\Documents\WindowsPowerShell\ompthemes\custom.omp.json" | Invoke-Expression"#,
+    ];
+
+    if let Err(err) = check_profile_file(&profile_file_path, &lines_to_check) {
+        eprintln!("Profile file check failed: {}", err);
+        // Handle the case when the required lines are not found in the file
+    } else {
+        // The file contains the required lines or they were added
+        println!("");
+    }
     checkfs();
     check_oh_my_posh_installed();
+    
     let args: Vec<String> = env::args().skip(1).collect();
     if let Some(command) = args.get(0) {
         let theme_name = args.get(1).map(|name| name.as_str());
